@@ -4,8 +4,8 @@ services:
     name: nikke-calc-mcp
     runtime: docker
     plan: free
-    region: singapore
-    repo: https://github.com/Moris-kr/nikke-calc
+    region: ohio
+    repo: https://github.com/jgonzatest/nikke-calc
     branch: master
     dockerfilePath: ./nikke_mcp/Dockerfile
     dockerContext: .
@@ -14,3 +14,26 @@ services:
     envVars:
       - key: PORT
         value: "8000"
+
+  # Static mirror of the GitHub Pages site (base path stays /nikke-calc/;
+  # canonical is still moris-kr.github.io/nikke-calc/).
+  - type: web
+    name: nikke-calc-site
+    runtime: static
+    plan: free
+    repo: https://github.com/jgonzatest/nikke-calc
+    branch: master
+    rootDir: site
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+    routes:
+      - type: redirect
+        source: /
+        destination: /nikke-calc/
+      - type: rewrite
+        source: /nikke-calc/*
+        destination: /:splat
